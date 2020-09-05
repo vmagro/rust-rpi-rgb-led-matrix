@@ -16,7 +16,7 @@ edition = "2018"
 
 [features]
 
-default = ["embeddedgraphics", "rgbmatrix-mock"]
+default = ["embeddedgraphics"]
 
 embeddedgraphics = ["embedded-graphics"]
 
