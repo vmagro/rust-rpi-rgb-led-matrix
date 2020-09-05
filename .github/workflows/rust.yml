@@ -15,11 +15,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Build - All Features
+    - name: build - all features
       run: cargo build --verbose --all-features
-    - name: Build - Default
+    - name: build - default
       run: cargo build --verbose
-    - name: Build - No Features
+    - name: build - no features
       run: cargo build --verbose --no-default-features
 
   tests:
@@ -27,6 +27,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: tests
       run: cargo test --features "rgbmatrix-mock"
 
   clippy:
