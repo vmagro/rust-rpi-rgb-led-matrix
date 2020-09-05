@@ -1,26 +1,31 @@
 use crate::c;
 use libc::{c_char, c_int};
-use std::ptr;
+use std::boxed::Box;
 
 pub(crate) extern "C" fn led_matrix_create_from_options(
     _options: *const c::LedMatrixOptions,
     _argc: *mut c_int,
     _argv: *mut *mut *mut c_char,
 ) -> *mut c::LedMatrix {
-    ptr::null_mut::<c::LedMatrix>()
+    let fake_matrix = Box::<u8>::new(0);
+    Box::into_raw(fake_matrix) as *mut c::LedMatrix
 }
 
 pub(crate) extern "C" fn led_matrix_delete(_matrix: *mut c::LedMatrix) {}
 
 pub(crate) extern "C" fn led_matrix_get_canvas(_matrix: *mut c::LedMatrix) -> *mut c::LedCanvas {
-    ptr::null_mut::<c::LedCanvas>()
+    _matrix as *mut c::LedCanvas
 }
 
 pub(crate) extern "C" fn led_canvas_get_size(
     _canvas: *const c::LedCanvas,
-    _width: *mut c_int,
-    _height: *mut c_int,
+    width: *mut c_int,
+    height: *mut c_int,
 ) {
+    unsafe {
+        *width = 64;
+        *height = 32;
+    }
 }
 
 pub(crate) extern "C" fn led_canvas_set_pixel(
@@ -40,18 +45,19 @@ pub(crate) extern "C" fn led_canvas_fill(_canvas: *mut c::LedCanvas, _r: u8, _g:
 pub(crate) extern "C" fn led_matrix_create_offscreen_canvas(
     _matrix: *mut c::LedMatrix,
 ) -> *mut c::LedCanvas {
-    ptr::null_mut::<c::LedCanvas>()
+    _matrix as *mut c::LedCanvas
 }
 
 pub(crate) extern "C" fn led_matrix_swap_on_vsync(
     _matrix: *mut c::LedMatrix,
-    _canvas: *mut c::LedCanvas,
+    canvas: *mut c::LedCanvas,
 ) -> *mut c::LedCanvas {
-    ptr::null_mut::<c::LedCanvas>()
+    canvas
 }
 
 pub(crate) extern "C" fn load_font(_bdf_font_file: *const c_char) -> *mut c::LedFont {
-    ptr::null_mut::<c::LedFont>()
+    let fake_matrix = Box::<u8>::new(0);
+    Box::into_raw(fake_matrix) as *mut c::LedFont
 }
 
 pub(crate) extern "C" fn delete_font(_font: *mut c::LedFont) {}
