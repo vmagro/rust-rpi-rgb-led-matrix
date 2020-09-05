@@ -1,30 +1,67 @@
+/// Throws around poor `Box`'d, fake versions of the matrix & canvas around to
+/// minimally mock how the C++ library works for tests when not running on a
+/// raspberry pi.
 use crate::c;
 use libc::{c_char, c_int};
 use std::boxed::Box;
+
+struct FakeCanvas {
+    width: usize,
+    height: usize,
+}
+
+impl Default for FakeCanvas {
+    fn default() -> Self {
+        Self {
+            width: 64,
+            height: 32,
+        }
+    }
+}
+
+struct FakeMatrix {
+    main_canvas: FakeCanvas,
+    offscreen_canvas: Option<FakeCanvas>,
+}
+
+impl Default for FakeMatrix {
+    fn default() -> Self {
+        FakeMatrix {
+            main_canvas: Default::default(),
+            offscreen_canvas: None,
+        }
+    }
+}
 
 pub(crate) extern "C" fn led_matrix_create_from_options(
     _options: *const c::LedMatrixOptions,
     _argc: *mut c_int,
     _argv: *mut *mut *mut c_char,
 ) -> *mut c::LedMatrix {
-    let fake_matrix = Box::<u8>::new(0);
+    let fake_matrix = Box::<FakeMatrix>::new(Default::default());
     Box::into_raw(fake_matrix) as *mut c::LedMatrix
 }
 
-pub(crate) extern "C" fn led_matrix_delete(_matrix: *mut c::LedMatrix) {}
+pub(crate) extern "C" fn led_matrix_delete(matrix: *mut c::LedMatrix) {
+    unsafe {
+        let _: Box<FakeMatrix> = Box::from_raw(matrix as *mut FakeMatrix);
+    }
+}
 
-pub(crate) extern "C" fn led_matrix_get_canvas(_matrix: *mut c::LedMatrix) -> *mut c::LedCanvas {
-    _matrix as *mut c::LedCanvas
+pub(crate) extern "C" fn led_matrix_get_canvas(matrix: *mut c::LedMatrix) -> *mut c::LedCanvas {
+    let fm_ptr: *mut FakeMatrix = matrix as *mut FakeMatrix;
+    unsafe { &mut (*fm_ptr).main_canvas as *const _ as *mut c::LedCanvas }
 }
 
 pub(crate) extern "C" fn led_canvas_get_size(
-    _canvas: *const c::LedCanvas,
+    canvas: *const c::LedCanvas,
     width: *mut c_int,
     height: *mut c_int,
 ) {
+    let fm_ptr: *mut FakeCanvas = canvas as *mut FakeCanvas;
     unsafe {
-        *width = 64;
-        *height = 32;
+        *width = (*fm_ptr).width as c_int;
+        *height = (*fm_ptr).height as c_int;
     }
 }
 
@@ -43,9 +80,13 @@ pub(crate) extern "C" fn led_canvas_clear(_canvas: *mut c::LedCanvas) {}
 pub(crate) extern "C" fn led_canvas_fill(_canvas: *mut c::LedCanvas, _r: u8, _g: u8, _b: u8) {}
 
 pub(crate) extern "C" fn led_matrix_create_offscreen_canvas(
-    _matrix: *mut c::LedMatrix,
+    matrix: *mut c::LedMatrix,
 ) -> *mut c::LedCanvas {
-    _matrix as *mut c::LedCanvas
+    let fm_ptr: *mut FakeMatrix = matrix as *mut FakeMatrix;
+    unsafe {
+        (*fm_ptr).offscreen_canvas = Some(Default::default());
+        (*fm_ptr).offscreen_canvas.as_mut().unwrap() as *const _ as *mut c::LedCanvas
+    }
 }
 
 pub(crate) extern "C" fn led_matrix_swap_on_vsync(
