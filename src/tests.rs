@@ -131,22 +131,24 @@ fn gradient() {
 #[test]
 fn canvas_swap() {
     let matrix = led_matrix();
-    let mut canvas = matrix.canvas();
+    let mut canvas = matrix.offscreen_canvas();
     let mut color = LedColor {
-        red: 127,
-        green: 127,
+        red: 10,
+        green: 0,
         blue: 0,
     };
 
     canvas.fill(&color);
-    canvas = matrix.offscreen_canvas();
-    color.blue = 127;
-    canvas.fill(&color);
-    thread::sleep(time::Duration::new(0, 100_000_000));
     canvas = matrix.swap(canvas);
-    color.red = 0;
-    canvas.fill(&color);
     thread::sleep(time::Duration::new(0, 100_000_000));
-    matrix.swap(canvas);
+    color.red = 0;
+    color.green = 10;
+    canvas.fill(&color);
+    canvas = matrix.swap(canvas);
+    thread::sleep(time::Duration::new(0, 100_000_000));
+    color.green = 0;
+    color.blue = 10;
+    canvas.fill(&color);
+    canvas = matrix.swap(canvas);
     thread::sleep(time::Duration::new(0, 100_000_000));
 }
