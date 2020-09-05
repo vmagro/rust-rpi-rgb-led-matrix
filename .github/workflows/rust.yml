@@ -1,56 +1,56 @@
 name: Rust
 
 on:
-    push:
-        branches: [ master ]
-    pull_request:
-        branches: [ master ]
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
 env:
-    CARGO_TERM_COLOR: always
+  CARGO_TERM_COLOR: always
 
 jobs:
-    build:
-        runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-latest
 
-        steps:
-        - uses: actions/checkout@v2
-        - name: Build - All Features
-            run: cargo build --verbose --all-features
-        - name: Build - Default
-            run: cargo build --verbose
-        - name: Build - No Features
-            run: cargo build --verbose --no-default-features
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build - All Features
+      run: cargo build --verbose --all-features
+    - name: Build - Default
+      run: cargo build --verbose
+    - name: Build - No Features
+      run: cargo build --verbose --no-default-features
 
-    tests:
-        runs-on: ubuntu-latest
+  tests:
+    runs-on: ubuntu-latest
 
-        steps:
-        - uses: actions/checkout@v2
-        run: cargo test --features "rgbmatrix-mock"
+    steps:
+    - uses: actions/checkout@v2
+    run: cargo test --features "rgbmatrix-mock"
 
-    clippy:
-        runs-on: ubuntu-latest
+  clippy:
+    runs-on: ubuntu-latest
 
-        steps:
-        - uses: actions/checkout@v1
-        - uses: actions-rs/toolchain@v1
-            with:
-                toolchain: nightly
-                components: clippy
-                override: true
-        - uses: actions-rs/clippy-check@v1
-            with:
-                token: ${{ secrets.GITHUB_TOKEN }}
-                args: --all-features
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions-rs/toolchain@v1
+      with:
+          toolchain: nightly
+          components: clippy
+          override: true
+    - uses: actions-rs/clippy-check@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        args: --all-features
 
-    format:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v2
-            - uses: actions-rs/toolchain@v1
-                with:
-                    toolchain: nightly
-                    components: rustfmt
-                    override: true
-            - run: rustfmt --check --edition 2018 ./src/*
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+            toolchain: nightly
+            components: rustfmt
+            override: true
+      - run: rustfmt --check --edition 2018 ./src/*
