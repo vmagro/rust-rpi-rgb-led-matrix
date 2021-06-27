@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Upgrade to embedded-graphics 0.7.1
+
 ## [0.2.2] - 2020-09-25
 
 - Version bump to (hopefully) actually fix [docs.rs][docs-rs-link] not rendering optional clap feature
